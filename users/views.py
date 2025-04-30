@@ -9,7 +9,7 @@ from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
-from .serializers import RegisterSerializer, LoginSerializer, PasswordResetSerializer
+from .serializers import RegisterSerializer, LoginSerializer, PasswordResetSerializer, LogoutSerializer
 
 User = get_user_model()
 
@@ -55,7 +55,7 @@ class PasswordResetView(generics.GenericAPIView):
 
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
-        reset_link = f"http://localhost:4200/reset-password/{uid}/{token}/"  # Asegúrate de que esta URL sea correcta
+        reset_link = f"http://localhost:5173/reset-password/{uid}/{token}/"  # Asegúrate de que esta URL sea correcta
         send_mail(
             'Restablecer contraseña',
             f'Usa este enlace para restablecer tu contraseña: {reset_link}',
@@ -69,12 +69,7 @@ class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        try:
-            refresh_token = request.data["refresh"]
-            token = RefreshToken(refresh_token)
-            token.blacklist()  # Necesita configuración extra para habilitar el blacklisting
-            return Response({"message": "Sesión cerrada correctamente"}, status=status.HTTP_205_RESET_CONTENT)
-        except KeyError:
-            return Response({"error": "Token de refresh no proporcionado"}, status=status.HTTP_400_BAD_REQUEST)
-        except TokenError:
-            return Response({"error": "Token inválido o expirado"}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = LogoutSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"message": "Sesión cerrada correctamente"}, status=status.HTTP_205_RESET_CONTENT)
