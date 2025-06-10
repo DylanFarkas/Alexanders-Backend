@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'django.contrib.sites',
+    #'django.contrib.sites',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'users',
@@ -149,5 +149,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # cors authorization
 CORS_ALLOWED_ORIGINS = [
-    #URL DEL FRONTEND
+    'http://localhost:5173',
 ]
